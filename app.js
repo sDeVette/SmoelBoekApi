@@ -15,6 +15,7 @@ db.once('open', function () {
   // we're connected!
 });
 
+// serve our static content to /public
 app.use("/static", express.static("public"));
 
 // Allow CORS
