@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var fs = require("fs");
 var User = require('../models/user');
 var Post = require('../models/post');
 
@@ -56,7 +57,26 @@ router.post('/user', function(req, res, next){
     }
   }
 
-  User.create(userData, function (error, user) {
+  let path = __dirname + "/public/pictures/";
+
+  let filename = req.body.user.name.first + "-" + req.body.user.name.last + ".png";
+
+  path = path.replace("/routes", "");
+  filename = filename.replace(" ", "-");
+  cdnpath = "http://localhost:3000/static/pictures/";
+
+  console.log(path);
+
+  let base64Data = req.body.user.pictureBase.replace(/^data:([A-Za-z-+/]+);base64,/, '');
+  fs.writeFile(path+filename, base64Data, 'base64', (err) => {
+    console.log(err);
+  });
+
+  req.body.user.picture.thumbnail = cdnpath + filename;
+  req.body.user.picture.medium = cdnpath + filename;
+  req.body.user.picture.large = cdnpath + filename;
+
+  User.create(req.body.user, function (error, user) {
     if (error) {
       return next(error);
     } else {
